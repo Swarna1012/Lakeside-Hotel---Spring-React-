@@ -23,7 +23,6 @@ import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Blob;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -56,7 +55,8 @@ public class RoomController {
         return roomService.getRoomTypes();
     }
 
-    @GetMapping("/allRooms")
+    @GetMapping("/allRoomDetails")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Transactional
     public ResponseEntity<List<RoomResponse>> getAllRooms() throws SQLException {
         List<Room> rooms = roomService.getAllRooms();
@@ -95,8 +95,7 @@ public class RoomController {
         return ResponseEntity.ok(roomResponse);
     }
 
-
-    @GetMapping("/room/{roomId}")
+    @GetMapping("/roomDetails/{roomId}")
     @Transactional
     public ResponseEntity<Optional<RoomResponse>> getRoomById(@PathVariable Long roomId){
         Optional<Room> theRoom = roomService.getRoomById(roomId);
@@ -106,6 +105,40 @@ public class RoomController {
         }).orElseThrow(() -> new  ResourceNotFoundException("Room not found!"));
     }
 
+
+    @GetMapping("/allRooms")
+    @Transactional
+    public ResponseEntity<List<RoomResponse>> getAllRoomInfo(){
+        List<Room> rooms = roomService.getAllRooms();
+        List<RoomResponse> roomResponses = new ArrayList<>();
+        for (Room room: rooms){
+            RoomResponse roomResponse = getRoomRatingResponses(room);
+            roomResponses.add(roomResponse);
+        }
+        return ResponseEntity.ok(roomResponses);
+    }
+
+    private RoomResponse getRoomRatingResponses(Room room){
+        byte[] photoBytes = null;
+        Blob photoBlob = room.getPhoto();
+        try{
+            if (photoBlob != null){
+                photoBytes = photoBlob.getBytes(1, (int) photoBlob.length());
+            }
+        } catch (SQLException e) {
+            throw new PhotoRetrievalException("Error retrieving photo...");
+        }
+
+        List<Ratings> ratings = getAllRatingsByRoomId(room.getId());
+        List<RatingResponses> ratingResponses = ratings.stream()
+                .map(ratings1 -> new RatingResponses(
+                        ratings1.getId(),
+                        ratings1.getRating(),
+                        ratings1.getReview(),
+                        ratings1.getGuestName()
+                )).toList();
+        return new RoomResponse(room.getId(), room.getRoomType(), room.getRoomPrice(), room.getStars(), photoBytes, ratingResponses);
+    }
 
     private RoomResponse getRoomResponse(Room room) throws PhotoRetrievalException {
         List<BookedRoom> bookings = getAllBookingsByRoomId(room.getId());
@@ -138,6 +171,7 @@ public class RoomController {
         return new RoomResponse(room.getId(), room.getRoomType(), room.getRoomPrice(), room.isBooked(), photoByte, bookingInfo, ratingInfo);
     }
 
+
     private List<Ratings> getAllRatingsByRoomId(Long roomId) {
         return ratingsService.getAllRatingsByRoomId(roomId);
     }
@@ -146,20 +180,11 @@ public class RoomController {
         return bookingService.getAllBookingsByRoomId(roomId);
     }
 
-    @GetMapping("/available")
-    public List<String> getAvailable(){
-        return roomService.getAvailable();
-    }
+//    @GetMapping("/available")
+//    public List<String> getAvailable(){
+//        return roomService.getAvailable();
+//    }
 
-    @GetMapping("/available-rooms")
-    @Transactional
-    public ResponseEntity<List<RoomResponse>> getAvailableRooms(
-            @RequestParam("checkInDate") Date checkInDate,
-            @RequestParam("checkOutDate") Date checkOutDate,
-            @RequestParam("roomType") String roomType){
-        List<Room> availableRoom = roomService.getAvailableRooms(checkInDate, checkOutDate, roomType);
-        return null;
-    }
 
     @GetMapping("/filter")
     @Transactional
@@ -180,7 +205,6 @@ public class RoomController {
         }
         return ResponseEntity.ok(roomResponses);
     }
-
 
     @GetMapping("/room-calendar")
     public ResponseEntity<Map<LocalDate, Boolean>> getAvailableDate(

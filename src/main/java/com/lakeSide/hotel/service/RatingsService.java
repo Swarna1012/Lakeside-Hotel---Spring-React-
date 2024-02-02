@@ -8,7 +8,8 @@ import java.util.List;
 public interface RatingsService {
     Ratings addRating(Long roomId, BigDecimal rating, String review, String guestName);
 
-//    Ratings editRating(Long id, Integer rating, String review);
-//
+    Ratings editRating(Long id, BigDecimal rating, String review, String guestName);
+
     List<Ratings> getAllRatingsByRoomId(Long roomId);
+
 }

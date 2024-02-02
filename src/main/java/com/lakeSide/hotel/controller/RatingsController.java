@@ -26,15 +26,16 @@ public class RatingsController {
         return ResponseEntity.ok(ratings);
     }
 
-//    @PutMapping("/edit/rating/{id}")
-//    public ResponseEntity<Ratings> editRating(
-//                                    @PathVariable("id") Long id,
-//                                    @RequestParam("rating") Integer rating,
-//                                    @RequestParam("review") String review){
-//        Ratings ratings = ratingsService.editRating(id, rating, review);
-//        return ResponseEntity.ok(ratings);
-//    }
-//
+    @PutMapping("/edit/rating/{id}")
+    public ResponseEntity<Ratings> editRating(
+                                    @PathVariable("id") Long id,
+                                    @RequestParam("rating") BigDecimal rating,
+                                    @RequestParam("review") String review,
+                                    @RequestParam("guestName") String guestName){
+        Ratings ratings = ratingsService.editRating(id, rating, review, guestName);
+        return ResponseEntity.ok(ratings);
+    }
+
     public RatingResponses getRatingResponses(Ratings ratings){
         RatingResponses ratingResponses = new RatingResponses(
                 ratings.getId(),

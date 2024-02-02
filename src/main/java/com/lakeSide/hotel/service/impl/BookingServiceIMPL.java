@@ -93,7 +93,6 @@ public class BookingServiceIMPL implements BookingService {
             bookedRoom.setGuestEmail(bookingRequest.getGuestEmail());
             bookedRoom.setCheckInDate(bookingRequest.getCheckInDate());
             bookedRoom.setCheckOutDate(bookingRequest.getCheckOutDate());
-
             bookingRepository.save(bookedRoom);
         }
         else{

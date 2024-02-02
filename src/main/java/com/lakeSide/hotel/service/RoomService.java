@@ -6,7 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -28,10 +27,7 @@ public interface RoomService {
 
     byte[] getRoomPhotoByRoomId(Long roomId) throws SQLException;
 
-    List<String> getAvailable();
-
-    List<Room> getAvailableRooms(Date checkInDate, Date checkOutDate, String roomType);
-
+//    List<String> getAvailable();
 
     List<Room> getFilteredRooms(LocalDate checkInDate, LocalDate checkOutDate, String roomType, BigDecimal minPrice, BigDecimal maxPrice);
 

@@ -21,7 +21,6 @@ public class RatingsServiceIMPL implements RatingsService {
     @Override
     public Ratings addRating(Long roomId, BigDecimal rating, String review, String guestName) {
 
-        System.out.println("add new ratings ");
         Ratings ratings = new Ratings();
         ratings.setRating(rating);
         ratings.setReview(review);
@@ -30,28 +29,32 @@ public class RatingsServiceIMPL implements RatingsService {
         Room room = new Room();
         room.setId(roomId);
         ratings.setRoom(room);
-        Ratings ratings1 = ratingsRepository.save(ratings);
-        System.out.println("ratings " + ratings);
+        ratingsRepository.save(ratings);
 
         Room room1 = roomRepository.findById(roomId).get();
         BigDecimal avgRating = ratingsRepository.averageRatingsByRoomId(roomId);
-
-        System.out.println("average rating " + avgRating);
         room1.setStars(avgRating);
-
         roomRepository.save(room1);
         return ratings;
     }
 
-//    @Override
-//    public Ratings editRating(Long id, Integer rating, String review) {
-//        Ratings ratings = ratingsRepository.findById(id).get();
-//        ratings.setRating(rating);
-//        ratings.setReview(review);
-//
-//        return ratingsRepository.save(ratings);
-//    }
-//
+    @Override
+    public Ratings editRating(Long id, BigDecimal rating, String review, String guestName) {
+        Ratings ratings = ratingsRepository.findById(id).get();
+        ratings.setRating(rating);
+        ratings.setReview(review);
+        ratings.setGuestName(guestName);
+        ratingsRepository.save(ratings);
+
+        Room room = ratings.getRoom();
+        Room room1 = roomRepository.findById(room.getId()).get();
+        BigDecimal avgRating = ratingsRepository.averageRatingsByRoomId(room1.getId());
+        room1.setStars(avgRating);
+        roomRepository.save(room1);
+
+        return ratingsRepository.save(ratings);
+    }
+
 
     public List<Ratings> getAllRatingsByRoomId(Long roomId){
         return ratingsRepository.findAllByRoomId(roomId);

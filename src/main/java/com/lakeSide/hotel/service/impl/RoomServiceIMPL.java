@@ -5,13 +5,10 @@ import com.lakeSide.hotel.exception.ResourceNotFoundException;
 import com.lakeSide.hotel.model.BookedRoom;
 import com.lakeSide.hotel.model.Room;
 import com.lakeSide.hotel.repository.RoomRepository;
-import com.lakeSide.hotel.service.BookingService;
 import com.lakeSide.hotel.service.RoomService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.rowset.serial.SerialBlob;
@@ -59,7 +56,7 @@ public class RoomServiceIMPL implements RoomService {
     }
 
     @Override
-    public Room updateRoom(Long roomId, String roomType, BigDecimal roomPrice, byte[] photoBytes) throws SQLException {
+    public Room updateRoom(Long roomId, String roomType, BigDecimal roomPrice, byte[] photoBytes){
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found!"));
         if (roomType != null) room.setRoomType(roomType);
@@ -96,20 +93,16 @@ public class RoomServiceIMPL implements RoomService {
         return null;
     }
 
-    @Override
-    public List<String> getAvailable() {
-        List<Room> rooms = roomRepository.findByIsBookedFalse();
-        List<String> roomList = new ArrayList<>();
-        for (Room room: rooms){
-            roomList.add(room.getRoomType());
-        }
-        return roomList;
-    }
+//    @Override
+//    public List<String> getAvailable() {
+//        List<Room> rooms = roomRepository.findByIsBookedFalse();
+//        List<String> roomList = new ArrayList<>();
+//        for (Room room: rooms){
+//            roomList.add(room.getRoomType());
+//        }
+//        return roomList;
+//    }
 
-    @Override
-    public List<Room> getAvailableRooms(Date checkInDate, Date checkOutDate, String roomType) {
-        return null;
-    }
 
     @Override
     public List<Room> getFilteredRooms(LocalDate checkInDate, LocalDate checkOutDate, String roomType, BigDecimal minPrice, BigDecimal maxPrice) {
